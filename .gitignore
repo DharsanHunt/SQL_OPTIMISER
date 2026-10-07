@@ -23,8 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Presentation files & generator script (keep binary presentations ignored)
+# Presentation & Document files & generator scripts (keep binary artifacts ignored)
 *.pptx
 Cost_Based_Query_Optimizer_Presentation*.pptx
 generate_presentation.py
+*.docx
+Cost_Based_Query_Optimizer_Report*.docx
+generate_document.py
 NEW_README.md
