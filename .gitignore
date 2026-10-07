@@ -23,9 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Presentation, screenshots & visual walkthrough
-screenshots/
+# Presentation files & generator script (keep binary presentations ignored)
 *.pptx
-Cost_Based_Query_Optimizer_Presentation.pptx
-NEW_README.md
+Cost_Based_Query_Optimizer_Presentation*.pptx
 generate_presentation.py
+NEW_README.md
