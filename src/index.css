@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F8F7F4;
+    color: #1A1D20;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F8F7F4;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D8D5CD;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B8B5AD;
+  }
+}
+
+/* React Flow custom styling for Vellum theme */
+.react-flow__background {
+  background-color: #FFFFFF !important;
+}
+.react-flow__edge-path {
+  stroke: #181B1F !important;
+  stroke-width: 1.5 !important;
+}
+.react-flow__controls {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid #E5E3DC !important;
+  background: #FFFFFF !important;
+  border-radius: 8px !important;
+}
+.react-flow__controls-button {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #E5E3DC !important;
+  fill: #555965 !important;
+}
+.react-flow__controls-button:hover {
+  background: #F8F7F4 !important;
+  fill: #181B1F !important;
+}

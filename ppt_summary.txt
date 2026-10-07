@@ -1,0 +1,43 @@
+=== ppt/slides/slide1.xml ===
+DATABASE MANAGEMENT SYSTEMS  ·  BCSE302L Building a Cost-Based Query Optimizer with Join Order Enumeration PROJECT REVIEW 1 Dharsan Udayakumar B.Tech. CSE — Information Security  |  Reg. No.: ______________ Faculty Guide: ______________ September 2026
+
+=== ppt/slides/slide2.xml ===
+00 AGENDA What We'll Cover 01 Motivation & Problem Statement 02 Objectives 03 Literature Survey 04 Proposed System Architecture 05 Methodology — Join Order Enumeration 06 Cost Model & Cardinality Estimation 07 Implementation Plan 08 Evaluation Plan 09 Timeline & Next Steps COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 02
+
+=== ppt/slides/slide3.xml ===
+01 MOTIVATION & PROBLEM Why Join Ordering Matters n! possible left-deep join orders for an n-table query The wrong join order can inflate intermediate results and turn a sub-second query into one that  times out. Every production RDBMS — PostgreSQL, MySQL, Oracle, SQL Server — carries a cost-based optimizer for exactly this reason. PROBLEM STATEMENT Given a SQL query joining n base relations with equality join predicates, and catalog statistics for each relation (row counts, block counts, distinct-value counts, histograms), determine an execution plan — join order, join algorithm, and access method per table — that minimizes estimated I/O + CPU cost, without exhaustively enumerating every plan. Given:   relations, join graph, statistics Find:   minimum-cost join order + physical plan Constraint:   polynomial-time search, not brute force COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 03
+
+=== ppt/slides/slide4.xml ===
+02 OBJECTIVES Project Objectives   1 Logical Plan Builder Parse SQL join queries into a relational-algebra tree and join graph.   2 Catalog & Statistics Row/block counts, distinct-value counts, equi-width histograms per relation.   3 Join-Order Enumeration Selinger-style dynamic programming over relation subsets.   4 Cost Model I/O + CPU cost estimation for scans and join algorithms.   5 Cardinality Estimation Histogram-based selectivity for selections and joins.   6 Benchmarking Compare against a naive plan and PostgreSQL's own optimizer. COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 04
+
+=== ppt/slides/slide5.xml ===
+03 LITERATURE SURVEY Grounded in Established Research 1979 Selinger et al. Access Path Selection in a Relational Database Management System (ACM SIGMOD) Introduced the bottom-up dynamic-programming join-order search this project implements — the System R optimizer. 2015 Leis et al. How Good Are Query Optimizers, Really? (VLDB) The Join Order Benchmark (JOB) study; shows cardinality misestimation, not join search, is the dominant cause of bad plans. 2021 Lan, Bao & Peng A Survey on Advancing the DBMS Query Optimizer (Data Science & Engineering) Surveys cardinality estimation, cost models, and plan enumeration strategies beyond exact DP at larger scale. COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 05
+
+=== ppt/slides/slide6.xml ===
+04 SYSTEM ARCHITECTURE Optimizer Pipeline SQL Query Parser  →  Logical Plan Join-Order Enumeration (Dynamic Programming) Select Cheapest Plan Physical Plan (join + scan methods) Query Executor Catalog / Statistics (row counts, histograms) Cost Model (I/O + CPU per plan) COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 06
+
+=== ppt/slides/slide7.xml ===
+05 METHODOLOGY Selinger-Style Join-Order Enumeration THE RECURRENCE bestPlan({Ri}) = cheapest single-table access path
+ bestPlan(S) = min split (S1, S2) of:    cost(S1) + cost(S2) + joinCost(S1, S2) HOW IT'S BUILT 1 Bottom-up over subset size: singles → pairs → triples → ... 2 Each subset reuses the best sub-plans already computed 3 Join-graph connectivity check skips unintended cross products 4 Every join costed as block-nested-loop, index-NL, and hash join SEARCH COMPLEXITY O(3ⁿ) time, O(2ⁿ) space Exact for the project's scope of 3–7 joined relations — exhaustive but tractable, unlike n! plan permutations. WHY CONNECTIVITY PRUNING MATTERS On a 4-table worked example, a plan forced into a cross product cost ≈ 812,000 block transfers — the connectivity-pruned, cost-based plan cost ≈ 14,900. COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 07
+
+=== ppt/slides/slide8.xml ===
+06 COST MODEL Cost Model & Cardinality Estimation Operator Cost Formula Sequential scan of R B(R) Index scan (equality) HTi + sel × B(R) Block nested-loop join B(R) + ⌈B(R)/(M−2)⌉ × B(S) Hash join 3 × (B(R) + B(S)) JOIN CARDINALITY ESTIMATE |R ⋈ S| ≈ |R| × |S| / max(V(a,R), V(b,S)) Selectivity refined further with equi-width histograms per attribute, rather than a flat uniform-distribution guess. WHY THIS MATTERS A cost-based search is only as good as its cardinality estimates — Leis et al. (2015) found estimation error, not the join-order search itself, to be the larger source of bad plans in production optimizers. This project implements both halves of the problem. COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 08
+
+=== ppt/slides/slide9.xml ===
+07 IMPLEMENTATION PLAN Technology Stack   Py Python Optimizer core: catalog, cost model, DP enumerator — hand-written, not library-driven.   Sq sqlglot Used purely as a SQL parsing front-end to build the logical relational-algebra tree.   St Storage Engine Minimal page-based heap files plus an optional B+-tree index module.   Pg PostgreSQL 16 External reference only — EXPLAIN output validates plan quality, never performs the optimization.   Db Benchmark Data Synthetic star-schema generator (configurable rows & skew) plus the JOB query set.   Gt Git / GitHub Version control and milestone tracking across the project timeline. COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 09
+
+=== ppt/slides/slide10.xml ===
+08 EVALUATION PLAN How the Optimizer Will Be Evaluated BASELINES TO COMPARE AGAINST 1 Naive left-deep plan (FROM-clause order) 2 This project's DP optimizer 3 Exhaustive optimal search (≤ 6 tables) 4 PostgreSQL EXPLAIN (external reference) METRICS TO REPORT •  Estimated plan cost •  Optimality gap vs. exhaustive search •  Optimization time vs. execution time •  Cardinality estimation error DATASETS Synthetic star schema
+ 3–7 relations, 10³–10⁶ rows, configurable skew
+
+ Join Order Benchmark (JOB)
+ Independently published workload for external, apples-to-apples validation Note: Review 1 presents the design and evaluation plan — measured results follow in Review 2 / 3 once implementation is complete. COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 10
+
+=== ppt/slides/slide11.xml ===
+09 TIMELINE Work Plan Weeks 1–3 Parser + Catalog / Statistics Module Weeks 4–6 DP Join Enumerator + Cost Model Weeks 7–9 Cardinality Estimation + Physical Operators Weeks 10–12 Benchmarking & PostgreSQL Cross-Validation Weeks 13–14 Final Report & Review 3 Preparation Completed In Progress Planned COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 11
+
+=== ppt/slides/slide12.xml ===
+10 REFERENCES References [1] P. G. Selinger et al., "Access Path Selection in a Relational Database Management System," ACM SIGMOD, 1979. [2] V. Leis, A. Gubichev, A. Mirchev, P. Boncz, A. Kemper, T. Neumann, "How Good Are Query Optimizers, Really?," Proc. VLDB Endowment, Vol. 9, No. 3, 2015. [3] H. Lan, Z. Bao, Y. Peng, "A Survey on Advancing the DBMS Query Optimizer," Data Science and Engineering, 2021. [4] R. Ramakrishnan, J. Gehrke, Database Management Systems, 3rd Ed., McGraw-Hill, 2003. [5] A. Silberschatz, H. F. Korth, S. Sudarshan, Database System Concepts, 7th Ed., McGraw-Hill, 2019. [6] PostgreSQL Official Documentation — "Planner/Optimizer" and "Row Estimation Examples." COST-BASED QUERY OPTIMIZER  ·  REVIEW 1 12
+
+=== ppt/slides/slide13.xml ===
+Thank You Questions & Discussion Dharsan Udayakumar  ·  BCSE302L — Database Management Systems
