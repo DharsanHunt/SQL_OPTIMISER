@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOptimizer } from '../context/OptimizerContext';
 import {
   CORRELATED_SCENARIOS,
@@ -77,7 +77,44 @@ export const AIOptimizerPage: React.FC = () => {
   } = useOptimizer();
 
   // Active 4 Feature Tabs
-  const [activeTab, setActiveTabState] = useState<AIFeatureTab>('query-rewriter');
+  const getInitialAITab = (): AIFeatureTab => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      if (hash.includes('nl-sql') || hash.includes('ai-nlsql')) return 'nl-sql';
+      if (hash.includes('viva-copilot') || hash.includes('ai-copilot')) return 'viva-copilot';
+      if (hash.includes('cardinality') || hash.includes('ai-cardinality')) return 'cardinality';
+      if (hash.includes('query-rewriter') || hash.includes('ai-rewriter')) return 'query-rewriter';
+    }
+    return 'query-rewriter';
+  };
+  const [activeTab, setActiveTabState] = useState<AIFeatureTab>(getInitialAITab);
+
+  const switchAITab = (t: AIFeatureTab) => {
+    setActiveTabState(t);
+    if (typeof window !== 'undefined') {
+      const targetHash =
+        t === 'nl-sql'
+          ? 'ai-nlsql'
+          : t === 'viva-copilot'
+          ? 'ai-copilot'
+          : t === 'cardinality'
+          ? 'ai-cardinality'
+          : 'ai-rewriter';
+      window.location.hash = targetHash;
+    }
+  };
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash.includes('nl-sql') || hash.includes('ai-nlsql')) setActiveTabState('nl-sql');
+      else if (hash.includes('viva-copilot') || hash.includes('ai-copilot')) setActiveTabState('viva-copilot');
+      else if (hash.includes('cardinality') || hash.includes('ai-cardinality')) setActiveTabState('cardinality');
+      else if (hash.includes('query-rewriter') || hash.includes('ai-rewriter')) setActiveTabState('query-rewriter');
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   // ==========================================
   // 1. AI Query Rewriter State
@@ -215,7 +252,7 @@ export const AIOptimizerPage: React.FC = () => {
         {/* 4 Clean Navigation Tabs matching user prompt */}
         <div className="flex items-center space-x-1 bg-[#FAF9F6] border border-[#E5E3DC] p-1 rounded-xl">
           <button
-            onClick={() => setActiveTabState('query-rewriter')}
+            onClick={() => switchAITab('query-rewriter')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
               activeTab === 'query-rewriter'
                 ? 'bg-white text-[#181B1F] shadow-sm border border-[#E5E3DC]'
@@ -227,7 +264,7 @@ export const AIOptimizerPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTabState('nl-sql')}
+            onClick={() => switchAITab('nl-sql')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
               activeTab === 'nl-sql'
                 ? 'bg-white text-[#181B1F] shadow-sm border border-[#E5E3DC]'
@@ -239,7 +276,7 @@ export const AIOptimizerPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTabState('viva-copilot')}
+            onClick={() => switchAITab('viva-copilot')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
               activeTab === 'viva-copilot'
                 ? 'bg-white text-[#181B1F] shadow-sm border border-[#E5E3DC]'
@@ -251,7 +288,7 @@ export const AIOptimizerPage: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTabState('cardinality')}
+            onClick={() => switchAITab('cardinality')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all ${
               activeTab === 'cardinality'
                 ? 'bg-white text-[#181B1F] shadow-sm border border-[#E5E3DC]'

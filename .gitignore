@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Presentation, screenshots & visual walkthrough
+screenshots/
+*.pptx
+Cost_Based_Query_Optimizer_Presentation.pptx
+NEW_README.md
+generate_presentation.py

@@ -9,6 +9,10 @@ export type NavTab =
   | 'dashboard'
   | 'query-lab'
   | 'ai-optimizer'
+  | 'ai-rewriter'
+  | 'ai-nlsql'
+  | 'ai-copilot'
+  | 'ai-cardinality'
   | 'optimizer'
   | 'join-tree'
   | 'join-graph'
@@ -67,10 +71,58 @@ interface OptimizerContextType {
   resetToDefaultQuery: () => void;
 }
 
+const VALID_TABS: NavTab[] = [
+  'dashboard',
+  'query-lab',
+  'ai-optimizer',
+  'ai-rewriter',
+  'ai-nlsql',
+  'ai-copilot',
+  'ai-cardinality',
+  'optimizer',
+  'join-tree',
+  'join-graph',
+  'dp-explorer',
+  'cost-model',
+  'catalog',
+  'execution-plan',
+  'comparison',
+  'benchmarks',
+  'postgres-compare',
+  'documentation',
+  'demo-mode',
+];
+
+const getInitialTab = (): NavTab => {
+  if (typeof window !== 'undefined') {
+    const hash = window.location.hash.replace(/^#\/?/, '').split('/')[0] as NavTab;
+    if (VALID_TABS.includes(hash)) return hash;
+  }
+  return 'query-lab';
+};
+
 const OptimizerContext = createContext<OptimizerContextType | undefined>(undefined);
 
 export const OptimizerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [activeTab, setActiveTabState] = useState<NavTab>(getInitialTab);
+
+  const setActiveTab = (tab: NavTab) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined') {
+      window.location.hash = tab;
+    }
+  };
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace(/^#\/?/, '').split('/')[0] as NavTab;
+      if (VALID_TABS.includes(hash)) {
+        setActiveTabState(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
   const [activeQuery, setActiveQuery] = useState<SampleQuery>(SAMPLE_QUERIES[0]);
   const [customSql, setCustomSql] = useState<string>(SAMPLE_QUERIES[0].sql);
   const [catalog, setCatalog] = useState<Record<string, RelationStats>>(SYSTEM_CATALOG);

@@ -25,6 +25,10 @@ const AppContent: React.FC = () => {
       case 'query-lab':
         return <QueryLabPage />;
       case 'ai-optimizer':
+      case 'ai-rewriter':
+      case 'ai-nlsql':
+      case 'ai-copilot':
+      case 'ai-cardinality':
         return <AIOptimizerPage />;
       case 'dashboard':
         return <DashboardPage />;
